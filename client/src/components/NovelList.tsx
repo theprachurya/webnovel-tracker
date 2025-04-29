@@ -202,11 +202,13 @@ const NovelList: React.FC = () => {
           >
             <div className="aspect-w-3 aspect-h-4 relative group">
               <img
-                src={novel.coverImage ? `${config.imageUrl}${novel.coverImage}` : '/placeholder-cover.jpg'}
+                src={novel.coverImage ? `${config.apiUrl}${novel.coverImage}` : '/placeholder-cover.jpg'}
                 alt={novel.name}
                 className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                 onError={(e) => {
+                  console.error('Image load error:', e);
                   e.currentTarget.src = '/placeholder-cover.jpg';
+                  e.currentTarget.onerror = null; // Prevent infinite loop
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-sepia-primary/80 to-transparent dark:from-anilist-blue/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
