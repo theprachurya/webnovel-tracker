@@ -37,7 +37,7 @@ const NovelList: React.FC = () => {
     queryFn: async () => {
       try {
         const response = await axios.get(`${config.apiUrl}/api/novels`);
-        return response.data;
+        return Array.isArray(response.data) ? response.data : [];
       } catch (error) {
         console.error('Error fetching novels:', error);
         return [];
@@ -101,13 +101,13 @@ const NovelList: React.FC = () => {
     }
   };
 
-  const filteredNovels = novels.filter((novel: Novel) => {
+  const filteredNovels = Array.isArray(novels) ? novels.filter((novel: Novel) => {
     const matchesSearch = novel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          novel.author.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesGenre = !selectedGenre || novel.genre === selectedGenre;
     const matchesStatus = !selectedStatus || novel.status === selectedStatus;
     return matchesSearch && matchesGenre && matchesStatus;
-  });
+  }) : [];
 
   const sortedNovels = [...filteredNovels].sort((a, b) => {
     if (sortField === 'score') {

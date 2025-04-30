@@ -1,6 +1,5 @@
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
 export const config = {
-  apiUrl: API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL,
-  imageUrl: `${API_URL}/uploads`,
+  apiUrl: process.env.REACT_APP_API_URL || 'https://your-project-name.up.railway.app',
+  cloudinaryCloudName: process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || 'your_cloudinary_cloud_name',
+  cloudinaryUploadPreset: process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || 'your_upload_preset'
 }; 

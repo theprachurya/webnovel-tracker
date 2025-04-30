@@ -9,8 +9,8 @@ const app = express();
 // CORS configuration
 const corsOptions = {
   origin: [
-    'https://webnovel-trackapp-pvlekpt1e-theprachuryas-projects.vercel.app',
-    'http://localhost:3000'
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'https://webnovel-trackapp.vercel.app'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
