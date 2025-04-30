@@ -47,6 +47,11 @@ const connectToDatabase = async () => {
   }
 };
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // Export the Express API for Vercel
 module.exports = async (req, res) => {
   try {
