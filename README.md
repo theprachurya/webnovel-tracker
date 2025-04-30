@@ -73,13 +73,6 @@ npm start
 
 ## Deployment
 
-The application is configured for deployment on Vercel. Follow these steps:
-
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Set up environment variables in Vercel
-4. Deploy
-
 ## Contributing
 
 1. Fork the repository

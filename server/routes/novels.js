@@ -2,19 +2,20 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const cloudinary = require('cloudinary').v2;
 const Novel = require('../models/Novel');
 const auth = require('../middleware/auth');
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+// Configure multer for local storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
-// Configure multer for memory storage
-const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   limits: { fileSize: 5000000 }, // 5MB limit
@@ -29,20 +30,6 @@ const upload = multer({
     cb(new Error('Only images are allowed!'));
   }
 });
-
-// Helper function to upload to Cloudinary
-const uploadToCloudinary = (buffer) => {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: 'webnovel-tracker' },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      }
-    );
-    uploadStream.end(buffer);
-  });
-};
 
 // Get all novels
 router.get('/', async (req, res) => {
@@ -75,8 +62,7 @@ router.post('/', auth, upload.single('coverImage'), async (req, res) => {
     let coverImageUrl = undefined;
     
     if (req.file) {
-      const result = await uploadToCloudinary(req.file.buffer);
-      coverImageUrl = result.secure_url;
+      coverImageUrl = `/uploads/${req.file.filename}`;
     }
 
     const novelData = {
@@ -99,8 +85,7 @@ router.put('/:id', auth, upload.single('coverImage'), async (req, res) => {
     let updates = { ...req.body };
     
     if (req.file) {
-      const result = await uploadToCloudinary(req.file.buffer);
-      updates.coverImage = result.secure_url;
+      updates.coverImage = `/uploads/${req.file.filename}`;
     }
 
     const novel = await Novel.findByIdAndUpdate(

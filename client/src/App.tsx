@@ -16,9 +16,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <Router>
-          <div className="min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark transition-colors duration-200">
+          <div className="min-h-screen bg-sepia-background dark:bg-anilist-blue-dark text-sepia-text dark:text-anilist-white transition-colors duration-200">
             <Navbar />
             <main className="container mx-auto px-4 py-8">
+              <h1 className="text-4xl font-serif font-bold text-center mb-8 text-sepia-primary dark:text-anilist-white">
+                Mugen's List
+              </h1>
               <Routes>
                 <Route path="/" element={<NovelList />} />
                 <Route path="/login" element={<Login />} />

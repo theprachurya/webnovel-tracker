@@ -22,35 +22,35 @@ module.exports = {
         },
         // AniList-like colors
         anilist: {
-          blue: '#2B2D42', // Main blue
-          purple: '#8D99AE', // Secondary purple
-          pink: '#EF233C', // Accent pink
-          white: '#EDF2F4', // Light text
-          black: '#2B2D42', // Dark background
-          // Additional AniList colors
-          'blue-light': '#3D405B', // Lighter blue
-          'blue-dark': '#1A1B26', // Darker blue
-          'purple-light': '#A2AEBB', // Lighter purple
-          'purple-dark': '#6B7280', // Darker purple
-          'gray-light': '#F8F9FA', // Light gray
-          'gray-dark': '#2D3748', // Dark gray
-          'success': '#48BB78', // Success green
-          'warning': '#F6AD55', // Warning orange
-          'error': '#F56565', // Error red
+          blue: '#2B2D42',
+          'blue-light': '#3D405B',
+          'blue-dark': '#1A1B26',
+          purple: '#8D99AE',
+          'purple-light': '#A2AEBB',
+          'purple-dark': '#6B7280',
+          pink: '#EF233C',
+          white: '#EDF2F4',
+          black: '#2B2D42',
+          gray: {
+            light: '#F8F9FA',
+            DEFAULT: '#6B7280',
+            dark: '#2D3748',
+          },
+          success: '#48BB78',
+          warning: '#F6AD55',
+          error: '#F56565',
         },
-        // Sepia theme colors
+        // Sepia theme colors (AniList-inspired)
         sepia: {
-          primary: '#D4A373', // Main sepia color
-          secondary: '#E9EDC9', // Light sepia
-          accent: '#CCD5AE', // Accent color
-          background: '#FEFAE0', // Background color
-          text: '#2D2A28', // Text color
-          'primary-light': '#E6C9A8', // Lighter primary
-          'primary-dark': '#BC6C25', // Darker primary
-          'secondary-light': '#F5F1E3', // Lighter secondary
-          'secondary-dark': '#D4C9A1', // Darker secondary
-          'accent-light': '#E2E8D0', // Lighter accent
-          'accent-dark': '#B7C4A0', // Darker accent
+          primary: '#2B2D42', // AniList blue as primary
+          secondary: '#8D99AE', // AniList purple as secondary
+          accent: '#EF233C', // AniList pink as accent
+          background: '#FDFCFA',
+          text: '#2D2A28',
+          'primary-light': '#3D405B',
+          'primary-dark': '#1A1B26',
+          'secondary-light': '#A2AEBB',
+          'secondary-dark': '#6B7280',
         }
       },
       fontFamily: {
@@ -96,8 +96,6 @@ module.exports = {
       boxShadow: {
         'anilist': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         'anilist-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        'sepia': '0 4px 6px -1px rgba(212, 163, 115, 0.1), 0 2px 4px -1px rgba(212, 163, 115, 0.06)',
-        'sepia-hover': '0 10px 15px -3px rgba(212, 163, 115, 0.1), 0 4px 6px -2px rgba(212, 163, 115, 0.05)',
       },
     },
   },
