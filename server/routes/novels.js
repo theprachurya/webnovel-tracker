@@ -61,6 +61,7 @@ router.get('/', async (req, res) => {
     const novels = await Novel.find().sort({ dateAdded: -1 });
     res.json(novels);
   } catch (error) {
+    console.error('Error fetching novels:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -74,6 +75,7 @@ router.get('/:id', async (req, res) => {
     }
     res.json(novel);
   } catch (error) {
+    console.error('Error fetching novel:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -84,16 +86,7 @@ router.post('/', auth, upload.single('coverImage'), async (req, res) => {
     let coverImageUrl = undefined;
     
     if (req.file) {
-      // Upload to Cloudinary
-      const result = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          { folder: 'webnovel-tracker' },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        ).end(req.file.buffer);
-      });
+      const result = await uploadToCloudinary(req.file.buffer);
       coverImageUrl = result.secure_url;
     }
 
@@ -106,6 +99,7 @@ router.post('/', auth, upload.single('coverImage'), async (req, res) => {
     await novel.save();
     res.status(201).json(novel);
   } catch (error) {
+    console.error('Error creating novel:', error);
     res.status(400).json({ message: error.message });
   }
 });
@@ -116,16 +110,7 @@ router.put('/:id', auth, upload.single('coverImage'), async (req, res) => {
     let updates = { ...req.body };
     
     if (req.file) {
-      // Upload to Cloudinary
-      const result = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          { folder: 'webnovel-tracker' },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        ).end(req.file.buffer);
-      });
+      const result = await uploadToCloudinary(req.file.buffer);
       updates.coverImage = result.secure_url;
     }
 
@@ -141,6 +126,7 @@ router.put('/:id', auth, upload.single('coverImage'), async (req, res) => {
 
     res.json(novel);
   } catch (error) {
+    console.error('Error updating novel:', error);
     res.status(400).json({ message: error.message });
   }
 });
@@ -156,6 +142,7 @@ router.delete('/:id', auth, async (req, res) => {
 
     res.json({ message: 'Novel deleted successfully' });
   } catch (error) {
+    console.error('Error deleting novel:', error);
     res.status(500).json({ message: error.message });
   }
 });
