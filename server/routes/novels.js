@@ -2,10 +2,18 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const cloudinary = require('cloudinary').v2;
 const Novel = require('../models/Novel');
 const auth = require('../middleware/auth');
 
-// Configure multer for file uploads
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configure multer for temporary file storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -56,9 +64,19 @@ router.get('/:id', async (req, res) => {
 // Add a new novel (protected route)
 router.post('/', auth, upload.single('coverImage'), async (req, res) => {
   try {
+    let coverImageUrl = undefined;
+    
+    if (req.file) {
+      // Upload to Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'webnovel-tracker'
+      });
+      coverImageUrl = result.secure_url;
+    }
+
     const novelData = {
       ...req.body,
-      coverImage: req.file ? `/uploads/${req.file.filename}` : undefined
+      coverImage: coverImageUrl
     };
 
     const novel = new Novel(novelData);
@@ -72,10 +90,15 @@ router.post('/', auth, upload.single('coverImage'), async (req, res) => {
 // Update a novel (protected route)
 router.put('/:id', auth, upload.single('coverImage'), async (req, res) => {
   try {
-    const updates = {
-      ...req.body,
-      ...(req.file && { coverImage: `/uploads/${req.file.filename}` })
-    };
+    let updates = { ...req.body };
+    
+    if (req.file) {
+      // Upload to Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'webnovel-tracker'
+      });
+      updates.coverImage = result.secure_url;
+    }
 
     const novel = await Novel.findByIdAndUpdate(
       req.params.id,
