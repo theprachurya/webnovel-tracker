@@ -37,24 +37,16 @@ app.use('/api/novels', require('./routes/novels'));
 app.use('/api/auth', require('./routes/auth'));
 
 // MongoDB Connection
-let cachedDb = null;
-
 const connectToDatabase = async () => {
-  if (cachedDb) {
-    return cachedDb;
-  }
-
   try {
-    const db = await mongoose.connect(process.env.MONGODB_URI, {
+    await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    cachedDb = db;
     console.log('Connected to MongoDB');
-    return db;
   } catch (error) {
     console.error('MongoDB connection error:', error);
-    throw error;
+    process.exit(1);
   }
 };
 
@@ -63,21 +55,18 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// Export the Express API for Vercel
-module.exports = async (req, res) => {
+// Start server
+const startServer = async () => {
   try {
     await connectToDatabase();
-    return app(req, res);
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   } catch (error) {
-    console.error('Server error:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
 };
 
-// Only start the server if not running in Vercel's serverless environment
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-} 
+startServer(); 
