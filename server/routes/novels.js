@@ -8,7 +8,10 @@ const auth = require('../middleware/auth');
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    const uploadPath = process.env.NODE_ENV === 'production' 
+      ? 'public/uploads/'
+      : 'uploads/';
+    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
