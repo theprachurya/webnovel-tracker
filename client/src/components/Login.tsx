@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { config } from '../config';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -13,7 +14,7 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post(`${config.apiUrl}/api/auth/login`, {
         username,
         password,
       });
