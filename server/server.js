@@ -12,13 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the uploads directory
-if (process.env.NODE_ENV === 'production') {
-  // In production (Vercel), serve from the public directory
-  app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
-} else {
-  // In development, serve from the uploads directory
-  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-}
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/novels', require('./routes/novels'));
