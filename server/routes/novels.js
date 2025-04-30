@@ -5,6 +5,7 @@ const path = require('path');
 const cloudinary = require('cloudinary').v2;
 const Novel = require('../models/Novel');
 const auth = require('../middleware/auth');
+const fs = require('fs').promises;
 
 // Configure Cloudinary
 cloudinary.config({
@@ -12,6 +13,24 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
+
+// Helper function to check if a URL is a Cloudinary URL
+const isCloudinaryUrl = (url) => {
+  return url && url.includes('cloudinary.com');
+};
+
+// Helper function to upload local image to Cloudinary
+const uploadToCloudinary = async (filePath) => {
+  try {
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: 'webnovel-tracker'
+    });
+    return result.secure_url;
+  } catch (error) {
+    console.error('Error uploading to Cloudinary:', error);
+    return null;
+  }
+};
 
 // Configure multer for temporary file storage
 const storage = multer.diskStorage({
@@ -72,6 +91,9 @@ router.post('/', auth, upload.single('coverImage'), async (req, res) => {
         folder: 'webnovel-tracker'
       });
       coverImageUrl = result.secure_url;
+      
+      // Clean up the temporary file
+      await fs.unlink(req.file.path);
     }
 
     const novelData = {
@@ -98,6 +120,9 @@ router.put('/:id', auth, upload.single('coverImage'), async (req, res) => {
         folder: 'webnovel-tracker'
       });
       updates.coverImage = result.secure_url;
+      
+      // Clean up the temporary file
+      await fs.unlink(req.file.path);
     }
 
     const novel = await Novel.findByIdAndUpdate(
@@ -126,6 +151,38 @@ router.delete('/:id', auth, async (req, res) => {
     }
 
     res.json({ message: 'Novel deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update all existing images to use Cloudinary (one-time migration)
+router.post('/migrate-images', auth, async (req, res) => {
+  try {
+    const novels = await Novel.find();
+    let updatedCount = 0;
+
+    for (const novel of novels) {
+      if (novel.coverImage && !isCloudinaryUrl(novel.coverImage)) {
+        // If the image is not a Cloudinary URL, try to upload it
+        const localPath = path.join(__dirname, '..', novel.coverImage);
+        try {
+          const cloudinaryUrl = await uploadToCloudinary(localPath);
+          if (cloudinaryUrl) {
+            novel.coverImage = cloudinaryUrl;
+            await novel.save();
+            updatedCount++;
+          }
+        } catch (error) {
+          console.error(`Error migrating image for novel ${novel._id}:`, error);
+        }
+      }
+    }
+
+    res.json({ 
+      message: `Successfully migrated ${updatedCount} images to Cloudinary`,
+      total: novels.length
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
