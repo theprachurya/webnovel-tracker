@@ -38,16 +38,8 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
-
+// Configure multer for memory storage (since we're using Cloudinary)
+const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   limits: { fileSize: 5000000 }, // 5MB limit
@@ -93,13 +85,16 @@ router.post('/', auth, upload.single('coverImage'), async (req, res) => {
     
     if (req.file) {
       // Upload to Cloudinary
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'webnovel-tracker'
+      const result = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: 'webnovel-tracker' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        ).end(req.file.buffer);
       });
       coverImageUrl = result.secure_url;
-      
-      // Clean up the temporary file
-      await fs.unlink(req.file.path);
     }
 
     const novelData = {
@@ -122,13 +117,16 @@ router.put('/:id', auth, upload.single('coverImage'), async (req, res) => {
     
     if (req.file) {
       // Upload to Cloudinary
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'webnovel-tracker'
+      const result = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: 'webnovel-tracker' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        ).end(req.file.buffer);
       });
       updates.coverImage = result.secure_url;
-      
-      // Clean up the temporary file
-      await fs.unlink(req.file.path);
     }
 
     const novel = await Novel.findByIdAndUpdate(
